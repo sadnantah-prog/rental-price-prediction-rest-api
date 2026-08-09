@@ -1,3 +1,4 @@
+%%writefile backend_files/Dockerfile
 FROM python:3.9-slim
 
 # Set the working directory inside the container
