@@ -1,6 +1,10 @@
+%%writefile frontend_files/app.py
 import streamlit as st
 import pandas as pd
 import requests
+
+# Base URL of the Flask backend
+BACKEND_URL = "http://backend:7860"
 
 # Set the title of the Streamlit app
 st.title("Airbnb Rental Price Prediction")
@@ -33,13 +37,13 @@ input_data = pd.DataFrame([{
 }])
 
 # Make prediction when the "Predict" button is clicked
-if st.button("Predict"):
-    response = requests.post("https://adb7574-RentalPricePredictionBackend.hf.space/v1/rental", json=input_data.to_dict(orient='records')[0])  # Send data to Flask API
+if st.button("Predict", type="primary"):
+    response = requests.post(f"{BACKEND_URL}/v1/rental", json=input_data.to_dict(orient='records')[0])  # Send data to Flask API
     if response.status_code == 200:
         prediction = response.json()['Predicted Price (in dollars)']
         st.success(f"Predicted Rental Price (in dollars): {prediction}")
     else:
-        st.error("Error making prediction.")
+        st.error("Unable to connect to the prediction API.")
 
 # Section for batch prediction
 st.subheader("Batch Prediction")
@@ -49,11 +53,11 @@ uploaded_file = st.file_uploader("Upload CSV file for batch prediction", type=["
 
 # Make batch prediction when the "Predict Batch" button is clicked
 if uploaded_file is not None:
-    if st.button("Predict Batch"):
-        response = requests.post("https://adb7574-RentalPricePredictionBackend.hf.space/v1/rentalbatch", files={"file": uploaded_file})  # Send file to Flask API
+    if st.button("Predict Batch", type="primary"):
+        response = requests.post(f"{BACKEND_URL}/v1/rentalbatch", files={"file": uploaded_file})  # Send file to Flask API
         if response.status_code == 200:
             predictions = response.json()
             st.success("Batch predictions completed!")
             st.write(predictions)  # Display the predictions
         else:
-            st.error("Error making batch prediction.")
+            st.error("Unable to connect to the prediction API.")
